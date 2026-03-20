@@ -1,0 +1,363 @@
+The below 10 questions are based on the Emp table: 
+1. Display the average, lowest, highest and difference in lowest and highest salaries  for each department number. 
+
+Query: select deptno, avg(sal),min(sal),max(sal),max(sal)-min(sal) as "difference Max-Min" from emp group by deptno;
+
+2. Display the number of employees within each job. 
+
+Query: select job,count(*) from emp group by job;
+
+3. Display the lowest salaries job-wise within each department number. 
+
+Query: select job,deptno,min(sal) from emp group by job,deptno;
+
+4. Display only those jobs where the minimum salary is greater than or equal to 3000. 
+
+Query: 	select job,min(sal) from emp
+    		group by job
+    		having min(sal)>=3000;
+
+5. Display the records sorted as per the job. Make sure that within each job the  records are sorted as per the highest to lowest salaries. 
+
+Query: select * from emp order by job,sal desc;
+
+6. Display Deptno, total of that deptno and Grade. Grade should be A if the total is  greater than 10000, else it should be B. Sort the summary output as per the  highest to lowest Grade. 
+
+Query: select deptno, sum(sal) as Total,case
+    -> when sum(sal)>10000 then 'A'
+    -> else 'B'
+    -> end as Grade from emp
+    -> group by deptno
+    -> order by Grade;
+
+7. Calculate and display only the average salaries paid to all those employees where  the employee name starts with A and name starts with S. 
+
+Query:select avg(sal) from emp where ename like 'A%' or ename like 'S%'; 
+
+
+8. Product exactly same output as shown below: 
+
+Query: select concat("The total of job type ",job," is ",sum(sal)) as "job wise total salaries" from emp
+    -> group by job;
+
+9. Display Mgr code and number of sub ordinates reporting to them for only those  managers who have at least 3 sub ordinates.
+
+Query:  select mgr, count(mgr) as "sub ordinates"
+    -> from emp
+    -> group by mgr
+    -> having
+    -> count(mgr)>=3;
+
+10. Produce exactly same output as shown below: 
+
+Query: select deptno, sum(sal) as"Total salary",
+    -> sum(sal)*0.1 as "Tax 10% of total",
+    -> sum(sal)-sum(sal)*0.1 as "Net total deducting tax"
+    -> from emp
+    -> group by deptno
+    -> order by deptno ;
+
+The below 10 questions are based on the Products2 table: 
+
+11. Display the Highest sales for each product within a country for each continent. 
+
+Query:  select pname, country,continent, max(sales)
+    -> from products2
+    -> group by country, continent,pname;
+
+12. Display the average sales for each product region-type wise within each area for  each country. 
+
+Query:  select pname,region_type, area ,country, avg(sales)
+    -> from products2
+    -> group by country, area, region_type,pname;
+
+13. Display the country-wise number of products for each product 
+
+Query:  select pname,country, count(pname) from products2
+    -> group by country, pname;
+
+14. Display the Country wise total of sales for each Continent. The summary records  should be shown as per highest to lowest sequence of totals. But in the final  display only first 2 records should be shown.
+
+Query: select country, continent, sum(sales) from products2
+    -> group by country, continent
+    -> order by sum(sales) desc
+    -> limit 2;
+
+15. Display the exact following report: 
+
+Query: select concat(continent, ' - ', country, ' - ', area, ' - ', region_type) as Geography , sum(sales) as "Total Sales" from products2
+    -> group by continent, country, area, region_type;
+
+16. Display the product name wise total sales excluding records of Rural region of  North area. 
+
+Query: select pname, sum(sales) as Total from products2
+    -> where area <> 'north' and region_type <> 'rural'
+    -> group by pname;
+
+
+17. Display country wise average sales excluding country India 
+
+Query: select country, avg(sales) from products2
+    -> where country <> 'india'
+    -> group by country;
+
+18. Display product name wise total sales for all the transactions done from  transaction id 23 onwards.
+
+ Query: select pname, sum(sales) as "Total Sales" from products2
+    -> where trans_id>=23
+    -> group by pname;
+ 
+19. Display Country wise count of transactions done.
+
+Query:  select country, count(trans_id) from products2
+    -> group by country;
+
+20. Display Country wise average sales done of Samsung only.
+
+Query: select country, avg(sales) from products2
+    -> where pname = 'samsung'
+    -> group by country;
+
+The below 2 questions are based on the India table: 
+
+21. Display product name wise count of records from India table. 
+
+Query: select pname, count(pname) from india
+    -> group by pname;
+
+22. Display product name wise total of quantity for the transactions having quantity  above 1. 
+
+Query: select pname, sum(qty) from india
+    -> where qty > 1
+    -> group by pname;
+
+The below 3 questions are based on the Code_Data table: 
+
+23. Display the total amount as per code which will be grouped by 3rd, 4th, 5th and 6th characters of code column’s values. 
+
+Query: SELECT SUBSTRING(code,3,4) AS code_part,
+      ->SUM(amount) AS "Total amount"
+      ->FROM code_data
+      ->GROUP BY SUBSTRING(code,3,4);
+
+24. The last 4 digits of code values represent the year. Display year wise total amount. 
+
+Query: SELECT SUBSTRING(code,-4) AS Year,
+      ->SUM(amount) AS "Total Amount"
+      ->FROM code_data
+      ->GROUP BY SUBSTRING(code,-4);
+
+25. Display the average amount as per the 6th character of code column’s values. 
+
+Query: SELECT SUBSTRING(code,6,1) AS Sixth_Character,
+       ->AVG(amount) AS "Average Amount"
+       ->FROM code_data
+       ->GROUP BY SUBSTRING(code,6,1);
+
+------------------------------------------------------------------------------------------------------------------------------------
+
+1) Display the employee names and department names of all the employees working in  the job type Salesman as well as Analyst 
+
+Query: select e.ename, d.dname, e.job from emp e inner join dept d on e.deptno = d.deptno where job in('salesman','analyst');
+
+2) Display the following report.
+
+Query: select concat(e.ename, ' ', e.ename, ' works in ', d.dname) as "ENAME 	DEPARTMENT NAME" from emp e inner join dept d on e.deptno = d.deptno; 
+
+3. Display the highest salary for each job within each department as per the  following report 
+
+Query:  select  concat(d.dname," " , e.job," ", max(e.sal)) as "Department JOB Highest Sal" from emp e join dept d on e.deptno=d.deptno group by d.dname,e.job;
+
+4. Display employee name, department name, location and job for all employees of  MANAGER job having salary above 2900.
+
+Query: select e.ename,d.dname,d.loc, e.job from emp e join dept d on e.deptno=d.deptno
+    	 where e.job='manager' and e.sal>2900;
+
+5. Display the names of the customers who are going to depart on time.
+
+Query:  select c.custname from customers c join flights f on c.flightno=f.flightno where f.status='Departure On Time';
+
+6. Display the names of those customers who are not flying from Pune to Bangalore
+
+Query: select c.custname from customers c join flights f on c.flightno=f.flightno where f.route!='Pune-Bangalore';
+
+ 7. Display the names of those customers who all are going from Gate number 1.
+
+Query: select c.custname from customers c join flights f on c.flightno=f.flightno where f.gateno= 'g1';
+
+ 8. Display the names of those customers who are going to Chandigad through King Fisher airlines only. 
+
+Query: select c.custname from customers c join flights f on c.flightno=f.flightno where f.flightname= 'king fisher' and f.route like'%chandigad';
+
+9. Generate the following report – 
+
+Query: select c.custid,c.cname,p.amount,case
+    -> when p.status is not null then 'Customer Present in Payment_Details'
+    -> else 'Customer Absent in Payment_Details'
+    -> end as 'Amount Remark'
+    -> from customer_details c left join payment_details p on c.custid=p.custid
+    -> order by p.amount desc;
+
+10.	Display the customer id customer name, status and amount of the customers who  have paid as well as those who have not paid.
+
+Query: select c.custid,c.cname,p.status,p.amount from customer_details c left join payment_details p on c.custid=p.custid;
+
+14)	Display transaction id, continent name, country name, city name, amount  allocated and amount spent.
+
+Query: select t.trid,c.Name_of_Continent,ct.Name_of_Country,t.Name_of_City,c.Continent_Amount_Allocated,ct.Country_Amount_Allocated,t.Amount_Spent
+    -> from transactions t join country_master ct
+    -> on t.countryid =ct.countryid
+    -> join continent_master c
+    -> on c.continentid = ct.continentid;
+
+15)	Display the total amount spent for each city, within each country from each  continent.
+
+Query:  select t.Name_of_City,c.Name_of_Country, ct.Name_of_Continent,sum(t.Amount_Spent)
+    -> from transactions t  join country_master c
+    -> on t.countryid = c.countryid
+    -> join continent_master ct
+    -> on c.continentid=ct.continentid
+   -> group by t.Name_of_City,c.Name_of_Country, ct.Name_of_Continent;
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+1. Display patient name, doctor name, and department for completed appointments.
+
+Query:  
+      select p.patientname, do.doctorname, de.departmentname,  a.AppointmentStatus from patients p join appointments a on 			p.patientid=a.patientid join doctors do on do.doctorid=a.doctorid join departments de on de.departmentid=do.departmentid where 	a.AppointmentStatus='completed';  
+
+2. 	List appointments in March 2024 with treatment cost > 600.
+
+Query:
+      select * from appointments where AppointmentDate like'2024-03%' and TreatmentCost>600;
+
+3.Show doctors from Cardiology department who handled more than 3  appointments.
+
+Query:  
+       select do.doctorname,de.departmentname from doctors do join departments de on do.departmentid=de.departmentid join 			appointments a on a.doctorid=do.doctorid group by do.doctorname,de.departmentname having 			count(do.doctorid)>3 and de.departmentname='cardiology';
+  
+4. Display total revenue generated per department.
+
+Query: 
+       select de.departmentname, sum(a.treatmentcost) as 'Total Revenue' from departments de join doctors do on              de.departmentid=do.departmentid join appointments a on 	a.doctorid=do.doctorid group by de.departmentname;
+
+5.List patients who never had a cancelled appointment.
+
+Query: 
+      select p.patientname "patients" from patients p JOIN appointments a on p.patientid = a.patientid where a.AppointmentStatus <> 'Cancelled';
+
+6. Show doctors earning more than 140000 who handled completed appointments.
+
+Query: select do.doctorname, do.salary from doctors do join appointments a on do.doctorid=a.doctorid where do.salary>140000 and 		a.appointmentstatus='completed';
+
+7. Display patients treated by doctors from Oncology department. 
+
+Query:
+       select p.patientname from patients p join appointments a on p.patientid=a.patientid join doctors do on a.doctorid=do.doctorid join    departments de on do.departmentid=de.departmentid where de.departmentname='Oncology' and appointmentstatus='completed';
+
+8. Show total appointments per month.
+
+Query:
+       select count(month(appointmentdate)) as "Total Appointments per month" from appointments group by month(appointmentdate);
+ 
+9. Find top 3 doctors based on total treatment revenue generated.
+ 
+Query: 
+      select do.doctorname,sum(a.TreatmentCost) from doctors do join appointments a on do.doctorid=a.doctorid group by do.doctorname order by sum(a.treatmentcost) desc limit 3;
+
+10.Display patients from USA who had appointments in April 2024.
+
+Query:
+        select p.patientname,a.appointmentdate from patients p join appointments a on p.patientid=a.patientid where p.country='usa' and a.AppointmentDate like'2024-04%';	
+
+11. List departments that had no cancelled appointments. 
+
+Query:
+       select de.departmentname, a.appointmentstatus from departments de join doctors do on de.departmentid=do.departmentid join appointments a on do.doctorid=a.doctorid where AppointmentStatus <> 'canceled';
+
+12. Show doctors who handled more than 5 completed appointments. 
+
+Query: 
+       select d.doctorname,count(a.appointmentstatus)
+    -> from doctors d join appointments a
+    -> on d.doctorid = a.doctorid
+    -> where appointmentstatus= 'completed'
+    -> group by d.doctorname
+    -> having count(appointmentstatus)>5;
+
+13. Display total revenue generated by each doctor
+
+Query:
+     select d.doctorname, sum(a.treatmentcost) as "total Revenue"
+    -> from doctors d join appointments a
+    -> on d.doctorid=a.doctorid
+    -> group by d.doctorname;
+
+14. List patients who visited more than 2 different departments. 
+
+Query:
+      > select p.patientname,count(d.departmentname)
+    -> from patients p
+    -> join appointments a
+    -> on p.patientid = a.patientid
+    -> join doctors do
+    -> on a.doctorid = do.doctorid
+    -> join departments d
+    -> on do.departmentid = d.departmentid
+    -> group by p.patientname
+    -> having count(d.departmentname)>2;
+
+15. Show appointments where treatment cost is greater than average treatment cost.
+
+Query:select *
+    -> from appointments
+    -> where treatmentcost>(select avg(treatmentcost) from appointments);
+
+16. Display department-wise average treatment cost. 
+ 
+Query: 
+      select d.departmentname, avg(a.treatmentcost)
+    -> from appointments a join doctors do
+    -> on a.doctorid= do.doctorid
+    -> join departments d
+    -> on d.departmentid = do.departmentid
+    -> group by d.departmentname;
+
+17.List doctors who handled appointments in every month from Jan to June 2024. 
+ 
+Query: 
+      select d.doctorname
+    -> from doctors d join appointments a
+    -> on d.doctorid = a.doctorid
+    -> where month(appointmentdate) between 1 and 6
+    -> group by d.doctorname;
+
+18. Show patients who had both Scheduled and Completed appointments
+ 
+Query:  select d.doctorname
+    -> from doctors d join appointments a
+    -> on d.doctorid = a.doctorid
+    -> where (month(a.appointmentdate) between 1 and 6) and (year(a.appointmentdate)=2024)
+    -> group by d.doctorname;
+19. Display total completed appointments per department. 
+
+Query:
+     select d.departmentname,count(a.appointmentstatus)
+    -> from departments d join
+    -> doctors do
+    -> on d.departmentid=do.departmentid
+    -> join appointments
+    -> a on do.doctorid = a.doctorid
+    -> where a.appointmentstatus='completed'
+    -> group by d.departmentname;
+
+20.Find doctors who never had a cancelled appointment.
+
+Query: 
+     select d.doctorname
+    -> from doctors d
+    -> join appointments a
+    -> on d.doctorid=a.doctorid
+    -> where appointmentstatus !='cancelled'
+    -> group by d.doctorname;
+      

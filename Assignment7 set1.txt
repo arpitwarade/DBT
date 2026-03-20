@@ -1,0 +1,138 @@
+1) Create a trigger on MyEmp2 table which will transfer the deleted records from
+myEmp2 table into another table Backup_MyEmp2.
+Note  Backup_MyEmp2 table’s structure should be same as that of MyEmp2 table
+
+CREATE TABLE BACKUP_MYEMP2(
+	BACKUP_ID INT PRIMARY KEY AUTO_INCREMENT,
+	EMPLOYEE_ID INT,
+	ACTION VARCHAR(20),
+	ACTION_TIME TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
+
+
+
+
+DELIMITER $$
+	CREATE TRIGGER after_employee_DELETE
+	AFTER DELETE ON MY_EMP2
+	FOR EACH ROW
+	BEGIN 
+		INSERT INTO BACKUP_MYEMP2(EMPLOYEE_ID,ACTION) VALUES(OLD.EMPNO,'DELETE');
+	END $$
+DELIMITER ;
+
+	
+
+
+2) Create a trigger on MyEmp2 table which will add newly inserted record’s empno,
+ename, and salary into another table New_Joinees.
+Note  New_joinees table should have columns Record number(auto number),
+empno, ename &amp; salary.
+
+CREATE TABLE NEW_JOINEES(
+	J_ID INT PRIMARY KEY AUTO_INCREMENT,
+	EMPNO INT,
+	ENAME VARCHAR(20),
+	SALARY DECIMAL(10,2));
+
+
+
+
+DELIMITER //
+	CREATE TRIGGER AFTER_NEW_JOINEE
+	AFTER INSERT ON MY_EMP2
+	FOR EACH ROW
+	BEGIN
+		   INSERT INTO New_Joinees (EMPNO, ENAME, SALARY)
+                    VALUES (NEW.EMPNO, NEW.ENAME, NEW.SAL);
+	END //
+DELIMITER ;
+
+
+
+
+3) Create a trigger on MyEmp2 table which will add the old salary, new salary and
+empno in a table named Salary_Changes, whenever in MyEmp2 table salary gets
+updated.
+Note  Salary_Changes table should have columns Record number(auto number),
+empno, old salary and new salary.
+
+CREATE TABLE SALARY_CHANGES (
+    Change_ID INT PRIMARY KEY AUTO_INCREMENT, 
+    EMPNO INT,                                
+    OLD_SALARY DECIMAL(10,2),
+    NEW_SALARY DECIMAL(10,2)
+);
+
+
+
+
+DELIMITER //
+	CREATE TRIGGER SALARY_CHANGES
+	AFTER UPDATE ON MY_EMP2
+	FOR EACH ROW
+	BEGIN
+		INSERT INTO SALARY_CHANGES(EMPNO,OLD_SALARY,NEW_SALARY) VALUES(NEW.EMPNO,OLD.SAL,NEW.SAL);
+ 	END //
+DELIMITER ;
+			    
+
+
+
+4) Create a table MyEmp3 which will be copy of MyEmp2 along with all its records.
+Create table MyEmp3_Summary which will have columns Deptno, Total Salary, Max
+Salay, Min Salay and Average Salary. Whenever a record is added in the MyEmp3
+then the table MyEmp3_Summary should get refreshed.
+
+CREATE TABLE MY_EMP3 AS
+SELECT * FROM MY_EMP2;
+
+CREATE TABLE MYEMP3_SUMMARY(DEPTNO INT PRIMARY KEY,
+			    TOTAL_SALARY DECIMAL(10,2),
+			    MAX_SALARY DECIMAL(10,2),
+			    MIN_SALARY DECIMAL(10,2),
+			    AVG_SALARY DECIMAL(10,2)
+);
+
+
+
+
+DELIMITER //
+	CREATE TRIGGER CHANGE_IN_MYEMP3
+	AFTER INSERT ON MY_EMP3
+	FOR EACH ROW
+	BEGIN
+		INSERT INTO MYEMP3_SUMMARY 		 
+
+
+
+5) Create a table MyEmp4 which will be copy of MyEmp2 along with all its records.
+Create a table Employees_Total_Salary which will have empno and total salary as
+the two columns.
+Whenever the salary gets updated from MyEmp4 table then the updated salary +
+commission should get added in the Employees_Total_Salary table. For employees
+who do not have any commission consider it as 10% of salary.
+
+CREATE OR REPLACE TRIGGER trg_total_salary
+AFTER UPDATE OF sal ON MyEmp4
+FOR EACH ROW
+DECLARE
+    v_comm NUMBER;
+    v_total NUMBER;
+BEGIN
+    IF :NEW.comm IS NULL THEN
+        v_comm := :NEW.sal * 0.10;
+    ELSE
+        v_comm := :NEW.comm;
+    END IF;
+    v_total := :NEW.sal + v_comm;
+
+    MERGE INTO Employees_Total_Salary t
+    USING (SELECT :NEW.empno AS empno FROM dual) s
+    ON (t.empno = s.empno)
+    WHEN MATCHED THEN
+        UPDATE SET t.total_salary = v_total
+    WHEN NOT MATCHED THEN
+        INSERT (empno, total_salary)
+        VALUES (:NEW.empno, v_total);
+END;
+/

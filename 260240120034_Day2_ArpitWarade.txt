@@ -1,0 +1,347 @@
+1. Display the records of job clerk and manager for deptno 20.
+
+select *
+from emp
+where job in('CLERK','MANAGER') and deptno=20;
+
+select *
+from emp
+where (job='CLERK' or job='MANAGER') and deptno=20;
+
+
+
+2. Display the records for the employees, which have the last character as R or H in
+their name.
+
+select *
+from emp
+where ename like '%R' or ename like '%H';
+
+
+
+3. Display the records of the employees earning sal less than 1000 and there is no
+comm provided.
+
+select *
+from emp
+where sal<1000 and comm is null;
+
+
+
+4. Produce the following output:
+Details
+-----------------------------------------------------------------------
+SMITH is from the deptno 20, earns salary 800
+ALLEN is from the deptno 30, earns salary 1600
+WARD is from the deptno 30, earns salary 1250
+JONES is from the deptno 20, earns salary 2975
+MARTIN is from the deptno 30, earns salary 1250
+BLAKE is from the deptno 30, earns salary 2850
+CLARK is from the deptno 10, earns salary 2450
+SCOTT is from the deptno 20, earns salary 3000
+KING is from the deptno 10, earns salary 5000
+TURNER is from the deptno 30, earns salary 1500
+ADAMS is from the deptno 20, earns salary 1100
+JAMES is from the deptno 30, earns salary 950
+FORD is from the deptno 20, earns salary 3000
+MILLER is from the deptno 10, earns salary 1300
+
+select concat(ename," is from the deptno ",deptno,", earns salary ",sal) as details
+from emp;
+
+
+
+5. Display the ename, sal, comm, sal+comm. For the null value of commission 10%
+of sal should be used.
+
+select ename,sal,comm,sal+ifnull(comm,sal*0.1) as "sal+comm"
+from emp;
+
+
+
+6. Display the names, sal, job, deptno and raise in the salary.
+The raise is to be given under following scenarios –
+
+a) Employees from deptno 20 from job Clerk should get 30% raise in their
+salary.
+b) Employees from deptno 20 from job Analyst should get 50% raise in their
+salary.
+c) Employees from deptno 30 from job Manager should get 60% raise in
+their salary.
+d) Employees from deptno 30 from job Salesman should get 70% raise in
+their salary.
+e) Employees from deptno 10 from job Clerk should get 10% raise in their
+salary.
+f) The remaining employees should get a raise of 500.
+
+select ename,sal,job,deptno,
+case 
+when deptno=20 and job='CLERK' then sal+(sal*0.3)
+when deptno=20 and job='ANALYST' then sal+(sal*0.5)
+when deptno=30 and job='MANAGER' then sal+(sal*0.6)
+when deptno=30 and job='SALESMAN' then sal+(sal*0.7)
+when deptno=10 and job='CLERK' then sal+(sal*0.1) 
+else sal+500 
+end as "raise"
+from emp;
+
+
+
+7. Display the records of employees from the job Clerk earning salary above 1000
+as well as all Managers earning salary above 2900.
+
+select *
+from emp
+where (job='CLERK' and sal>1000) or (job='MANAGER' and sal>2900);
+
+
+
+8. Display the records sorted as per the job. Make sure that within each job the
+records are sorted as per the highest to lowest commissions.
+
+select *
+from emp
+order by job asc,comm asc;
+
+
+
+9. Display name, salary, 30% of salary as tax and salary – tax as take home salary
+for records of employee table working in deptno 20.
+
+select ename,sal,(sal*0.3) as tax,deptno,sal-(sal * 0.3) AS Take_Home_Salary
+from emp
+where deptno = 20;
+
+
+
+10. Display records from emp table of all Salesman from deptno 20 only.
+
+select *
+from emp
+where job='SALESMAN' and deptno=20;
+
+
+
+11. Display records from emp table of all those employees who are not reporting to
+anyone.
+
+select *
+from emp
+where mgr is NULL;
+
+
+
+12. Display records from emp table of those employees who are earning salary less
+than or equal to 2000. Records should be sorted as per deptno, and within deptno
+as per their salaries highest to lowest.
+
+select *
+from emp
+where sal<=2000
+order by deptno,sal desc;
+
+
+
+13. Display Name, Salary, Commission and Total as Salary + 30% of Commission
+for all those employees whose difference between Salary and Commission is less
+than or equal to 1200.
+
+select ename,sal,ifnull(comm,0)as comm,sal+(ifnull(comm,0)*0.3) as total
+from emp
+where sal-ifnull(comm,0)<=1200;
+ 
+
+
+
+1. Create the table student_master with the following specifications
+
+create table student_master(
+Rollno int primary key,
+Name varchar(20) not null,
+City varchar(50) default 'Mumbai',
+Marks int check (Marks >= 0 and Marks <= 100),
+Invoice_No varchar(100) unique not null);
+
+
+
+
+2. Create the table certificate_details with the following specifications
+
+create table certificate_details(
+Rollno int, 
+Date_of_Certificate Date not null,
+Course varchar(50) not null check(Course in'Oracle','Power BI','Azure Data Factory'))
+FOREIGN KEY (Rollno) REFERENCES student_master(Rollno)
+);
+
+
+
+3. Create the table First_Attempt_Marks with the following specifications
+
+create table First_Attempt_Marks(
+Rollno int not null,
+Subject varchar(20) not null,
+Marks int not null,
+primary key(Rollno, Subject)
+);
+  
+
+
+
+4. Create the table First_Attempt_Grades with the following specifications
+
+create table First_Attempt_Grades (
+Rollno INT NOT NULL,
+Subject VARCHAR(20) NOT NULL,
+Grade ENUM('A','B') NOT NULL,
+PRIMARY KEY (Rollno, Subject),
+FOREIGN KEY (Rollno, Subject) REFERENCES first_attempt_marks(Rollno, Subject)
+);
+
+
+
+5. Create the table cost_analysis with the following specifications
+
+CREATE TABLE Company_Details (
+Company_ID INT PRIMARY KEY,
+Company_Name VARCHAR(100) NOT NULL,
+Export_Cost DECIMAL(12,2),
+Import_Cost DECIMAL(12,2),
+CONSTRAINT chk_import_cost CHECK (Import_Cost >= 0.4 * Export_Cost)
+);
+
+
+
+6. Create the table Salesman_Data with the following specifications
+
+create table Salesman_Data(
+Salesmain_Id int primary key,
+Salesman_Name varchar(20) not null,
+Area_code int unique,
+Sales_Amt int,
+Profit_Amt int,
+Constraint check_amt check(Sales_Amt > 5000 or Profit_Amt > 700)
+);
+
+
+
+14. Produce the exact same output as shown below:
+
+select concat(ename,"'s salary is ",sal) as "Salary Details"
+from emp;
+
+
+
+15. Display India records of year 2018 of Amount > 15000, China
+records of year 2018 of Amount < 20000 and Singapore records of year 2018 of
+Amount > 40000.                          
+   
+SELECT * 
+FROM asia
+WHERE 
+    (country = 'India' AND YEAR(dot) = 2018 AND amount > 15000)
+    OR (country = 'China' AND YEAR(dot) = 2018 AND amount < 20000)
+    OR (country = 'Singapore' AND YEAR(dot) = 2018 AND amount > 40000);
+
+
+
+Q1 Update GPA to 3.00 for all students whose GPA is below 2.00.
+
+update students set gpa=3.00
+where gpa<2.00;
+
+
+
+Q2 Increase salary by 8% for instructors in the 'Mathematics' department.
+
+update instructors
+set salary=salary+(salary*0.08)
+where department='mathematics';
+
+
+
+Q3 Set student status to 'INACTIVE' for students registered before 2021.
+
+update students
+set status = 'INACTIVE'
+where year(registration_date)<2021;
+
+
+
+Q4 Reduce course fee by 10% for courses having credits = 3.
+
+update courses
+set fee=fee-(fee*0.1)
+where credits=3;
+
+
+
+Q5 Update payment_status to 'PAID' where grade is not blank.
+
+update enrollments
+set payment_status='PAID'
+where grade is not null; 
+
+
+
+Q6 Increase GPA by 0.10 for students from Texas.
+
+update students
+set gpa = gpa+0.10
+where state = 'Texas';
+
+
+
+Q7 Update fee to 1000 for 'Web Development' course.
+
+update courses
+set fee=1000
+where course_name='Web Development';
+
+
+
+Q8 Delete enrolments which have grade as 'F'.
+
+delete from enrollments
+where grade = 'F';
+
+
+
+Q9 Increase salary by 5% for instructors whose salary is below 70000.
+
+update instructors
+set salary = salary+(salary*0.05)
+where salary<70000;
+
+
+
+Q10 Delete records from enrolments table of students who have not paid.
+
+delete from enrollments
+where  payment_status = 'UNPAID';
+
+
+Q11 Delete those courses who have their fees less than 1000.
+
+delete from courses
+where fee<1000;
+
+
+
+Q12 Delete records of students from students table who have their gpa above 4.00
+
+delete from students
+where gpa>4.00;
+
+
+
+Q13 Change the instructor Mathhew’s department from Chemistry to Physics
+
+UPDATE instructors
+SET department = 'Physics'
+WHERE first_name = 'Matthew';
+
+
+
+
+

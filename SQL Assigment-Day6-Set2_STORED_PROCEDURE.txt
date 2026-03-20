@@ -1,0 +1,199 @@
+1) Create a stored procedure that accepts an employee number as input and displays
+all details of that employee.
+
+DELIMITER $$
+	CREATE PROCEDURE DISPLAY_DETAILS_EMP(EMP_NO INT)
+	BEGIN
+		SELECT *
+		FROM EMP
+		WHERE EMPNO = EMP_NO;
+	END $$
+DELIMITER ;
+
+
+
+
+2) Create a procedure that accepts a department number and displays:
+a. Total employees in that department
+b. Average salary
+c. Highest salary
+d. Lowest salary
+
+DELIMITER //
+	CREATE PROCEDURE MULTIROW_FUNCTION(IN DEPT_NO INT)
+	BEGIN 
+		SELECT COUNT(*) AS "TOTAL EMPLOYEES",
+		AVG(SAL) AS "AVERAGE SALARY",
+		MAX(SAL) AS "HIGHEST SALARY",
+		MIN(SAL) AS "LOWEST SALARY"
+		FROM EMP
+		WHERE DEPTNO = DEPT_NO;	
+	END //
+DELIMETER ;
+
+
+
+
+3) Create a copy of emp table as emp_sp.
+Create a stored procedure that:
+a. Accepts employee number and increment percentage
+b. Updates the salary accordingly in the emp_sp table
+c. Displays old salary and new salary
+
+DELIMITER $$
+	CREATE PROCEDURE SALARY_INCREMENT(IN EMP_NO INT,IN PERCENTAGE FLOAT)
+	BEGIN
+		DECLARE OLD_SAL FLOAT DEFAULT 0;
+		DECLARE NEW_SAL FLOAT DEFAULT 0;
+		SELECT SAL INTO OLD_SAL
+		FROM EMP_SP
+		WHERE EMPNO = EMP_NO;
+		
+		SET NEW_SAL = OLD_SAL + (OLD_SAL*PERCENTAGE/100);
+		
+		UPDATE EMP_SP
+		SET SAL = NEW_SAL
+		WHERE EMPNO = EMP_NO;
+
+		SELECT OLD_SAL AS OLD_SALARY,NEW_SAL AS NEW_SALARY;
+	END $$
+DELIMITER ;
+
+
+
+
+4) Create a procedure to insert a new employee into emp_sp table.
+The procedure should:
+a. Accept all required employee details as parameters
+b. Validate that EMPNO does not already exist
+c. If exists → return a message
+d. Else → insert record
+
+DELIMITER //
+	CREATE PROCEDURE ADD_EMPLOYEE(EMP_NO INT,EMP_NAME VARCHAR(20),EMP_JOB VARCHAR(20),EMP_MGR INT,EMP_HIREDATE DATE,EMP_SAL FLOAT,EMP_COMM FLOAT,EMP_DEPTNO INT)
+	BEGIN
+		DECLARE EMP_COUNT INT DEFAULT 0;
+
+		SELECT COUNT(*) INTO EMP_COUNT
+		FROM EMP_SP
+		WHERE EMPNO = EMP_NO;
+		
+		IF EMP_COUNT > 0 THEN
+			SELECT "EMPLOYEE ALREADY EXISTES..." AS MESSAGE;
+		ELSE
+			INSERT INTO EMP_SP VALUES(EMP_NO,EMP_NAME,EMP_JOB,EMP_MGR,EMP_HIREDATE,EMP_SAL,EMP_COMM,EMP_DEPTNO);
+		SELECT "EMPLOYEE ADDED SUCCESSFULLY..." AS MESSAGE;
+		END IF;
+	END //
+DELIMITER ;	
+
+
+
+
+5) Create a procedure that accepts department number and displays employees who
+earn more than the average salary of that department.
+
+DELIMITER //
+	CREATE PROCEDURE EMPEARN_MORETHAN_AVGSAL(IN DEPT_NO INT)
+	BEGIN
+		SELECT ENAME
+		FROM EMP
+		WHERE SAL > (SELECT AVG(SAL)
+			     FROM EMP
+			     WHERE DEPTNO=DEPT_NO) AND DEPTNO = DEPT_NO;
+	END //
+DELIMITER ;
+
+
+
+
+6) Create a procedure that:
+a. Accepts department number
+b. Calculates total salary expense from emp table
+c. If total expense > 10000 → display “High Expense Department”
+d. Else → display “Normal Expense Department”
+
+DELIMITER $$
+	CREATE PROCEDURE TOTAL_SAL_EXPENSE(IN DEPT_NO INT)
+	BEGIN
+		DECLARE TOTAL_SAL DECIMAL(10,2) DEFAULT 0;
+		SELECT SUM(SAL) INTO TOTAL_SAL
+		FROM EMP
+		WHERE DEPTNO = DEPT_NO;
+		
+		IF TOTAL_SAL > 10000 THEN
+			SELECT 'High Expense Department' AS MESSAGE;
+		ELSE
+			SELECT 'Normal Expense Department' AS MESSAGE;
+		END IF;
+	END $$
+DELIMITER ;
+
+
+
+
+7) Create a procedure that:
+a. Accepts employee number
+b. Based on salary, returns grade:
+c. SAL >= 3000 → Grade A
+d. SAL between 2000 and 2999 → Grade B
+e. SAL < 2000 → Grade C
+
+DELIMITER //
+	CREATE PROCEDURE SAL_GRADE(IN EMP_NO INT)
+	BEGIN
+		DECLARE SALARY DECIMAL(10,2)  DEFAULT 0;
+		SELECT SAL INTO SALARY
+		FROM EMP
+		WHERE EMPNO = EMP_NO;
+		
+		IF SALARY >= 3000 THEN
+			SELECT 'A' AS GRADE;
+		ELSEIF SALARY BETWEEN 2000 AND 2999 THEN
+			SELECT 'B' AS GRADE;
+		ELSE 
+			SELECT 'C' AS GRADE;
+		END IF;
+	END //
+DELIMITER ;
+
+
+
+
+8) Create a procedure that accepts a year and:
+a. Displays total employees hired in that year
+b. Displays average salary of those employees
+
+DELIMITER //
+
+CREATE PROCEDURE EMP_YEAR_STATUS(IN YR INT)
+BEGIN
+    DECLARE TOTAL_EMP INT DEFAULT 0;
+    DECLARE AVG_SAL DECIMAL(10,2);
+
+    -- Total employees hired in given year
+    SELECT COUNT(*) INTO TOTAL_EMP
+    FROM EMP
+    WHERE YEAR(HIREDATE) = YR;
+
+    -- Average salary of those employees
+    SELECT AVG(SAL) INTO AVG_SAL
+    FROM EMP
+    WHERE YEAR(HIREDATE) = YR;
+
+    -- Display results
+    SELECT TOTAL_EMP AS TOTAL_EMPLOYEES,
+           AVG_SAL AS AVERAGE_SALARY;
+
+END //
+
+DELIMITER ;
+
+
+
+
+9) Create a copy of Emp table as “Emp_Copy”. Ensure all records of emp get copied in
+the new table.
+
+CREATE TABLE EMP_COPY AS
+SELECT * FROM EMP;

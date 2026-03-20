@@ -1,0 +1,128 @@
+1 Display the oldest employee in the deptno 30.
+ 
+Query : 
+        mysql> SELECT * FROM emp
+    -> WHERE deptno = 30
+    -> ORDER BY hiredate ASC
+    -> LIMIT 1;
+
+2 Display the records of employees who earn salary less than the average salary of
+job SALESMAN. The records of SALESMAN should be excluded from the
+Report.
+
+Query : 
+        select * from emp
+    -> where sal<(select AVG(sal) from emp where job = 'SALESMAN')
+    -> AND job <> 'SALESMAN';
+
+3 Display the top earner’s records from the job CLERK.
+
+Query : 
+	     select * from emp
+   	 -> where sal=(select max(sal) from emp where job='CLERK')
+    	 -> ;
+
+4 Display the records of lowest earners who joined in the year 81.
+
+Query : 
+	mysql> select *from emp where sal=(select min(sal) 
+              from emp
+              where year(hiredate)=1981);
+
+
+
+
+5 Display the records of employees who are earning above the average salary in their own deptno.
+
+Query : 
+	Select * from emp
+    	-> where sal>any(select avg(sal) from emp group by deptno);
+
+
+6 Display the name, hire date, and salary for all employees who have both the same
+salary and commission as Scott.
+Note: Do not display SCOTT in the result set.
+
+Query : 
+	mysql> select ename, hiredate, sal from emp where (sal = (select sal from emp where ename = 'SCOTT') or comm = (select comm from emp where ename = 'SCOTT')) AND ename <> "SCOTT";
+	
+
+7 Display the department names of employees who have their salary greater than
+Martin’s salary.
+
+Query :
+        mysql> select d.dname,e.ename
+    -> from emp e join dept d
+    -> on e.deptno=d.deptno
+    -> where e.sal>(select sal from emp where ename='Martin');
+	
+
+8 Display the department name that has the highest salary record.
+
+Query : 
+        mysql> select d.dname,max(e.sal)
+    -> from emp e join dept d
+    -> on e.deptno=d.deptno
+    -> group by d.deptno order by max(e.sal) desc limit 1;
+
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+All the questions are based on India and Australia tables
+
+1 Display all columns along with new column Discounted_Amount as 5% on the
+amount for those transactions having quantity sold is above 3 for both the
+countries.
+
+Query:  select * , (amount*0.05) as "Discounted column"
+    -> from india
+    -> where qty>3
+    -> union
+    -> select * , (amount*0.05) as "Discounted column"
+    -> from australia
+    -> where qty>3
+    -> ;
+2 Display product name wise number of products sold in each country along with a
+sub total of each country as shown next
+  
+Query: select pname,sum(qty) "Number of item sold"
+    ->      from india
+    ->      group by pname
+    ->      union all
+    ->      select "india count",sum(qty)
+    ->      from india
+    ->      union all
+    ->      select pname,sum(qty) "Number of item sold"
+    ->      from australia
+    ->      group by pname
+    ->      union all
+    ->      select "Australia count",sum(qty)
+    ->      from Australia;
+
+3. Display the following output:
+ 
+Query:  select 'india' as "country", pname,sum(amount) as "Total bill"
+    -> from india
+    -> group by pname
+    -> union all
+    -> select 'Australia' as "country", pname,sum(amount) as "Total bill"
+    -> from Australia
+    -> group by pname;
+
+4. Display week days transaction details for both the countries excluding the
+transactions done on 1-Jan-2019.
+
+5. Display all the transactions of India as well as Australia sorted as per date of
+purchase oldest to latest. Also display grand total of amounts country wise as the
+last 2 rows in the output
+
+Query: 
+
+16 Display all the transaction details done in counter 3 for both the countries.
+
+query:
+select * from india
+    -> where trid like '%c3'
+    -> union all
+    -> select * from australia
+    -> where trid like '%c3';

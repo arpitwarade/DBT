@@ -1,0 +1,147 @@
+1. Create a user defined function fn_annual_salary(emp_id INT) that returns the annual
+salary of an employee by calculating (SAL × 12) + (COMM × 12), treating NULL
+commission as 0.
+
+DELIMITER $$
+	CREATE FUNCTION FN_ANNUAL_SALARY(EMP_ID INT)
+	RETURNS DECIMAL(10,2)
+	DETERMINISTIC
+	BEGIN	
+		DECLARE ANNUAL_SAL DECIMAL(10,2);
+		SELECT (SAL*12) + (IFNULL(COMM,0)*12) INTO ANNUAL_SAL
+		FROM MY_EMP
+		WHERE EMPNO = EMP_ID;
+		RETURN ANNUAL_SAL;
+	END $$
+DELIMITER ;
+
+
+
+
+2. Create a function fn_experience_category(emp_id INT) that calculates total years of
+experience from HIREDATE till the current date and returns 'Junior' if experience is
+less than 2 years, 'Mid-Level' if between 2 and 5 years, and 'Senior' if more than 5
+years.
+
+DELIMITER $$
+	CREATE FUNCTION FN_EXPERIENCE_CATEGORY(EMP_ID INT)
+	RETURNS VARCHAR(20)
+	DETERMINISTIC
+	BEGIN
+		DECLARE YEARS INT DEFAULT 0;
+		DECLARE CATEGORY VARCHAR(20);
+		
+		SELECT TIMESTAMPDIFF(YEAR,HIREDATE,CURDATE()) INTO YEARS
+		FROM MY_EMP
+		WHERE EMPNO = EMP_ID;
+		
+		IF YEARS < 2 THEN
+			SET CATEGORY = 'JUNIOR';
+		ELSEIF YEARS BETWEEN 2 AND 5 THEN
+			SET CATEGORY = 'MID-LEVEL';
+		ELSE 
+			SET CATEGORY = 'SENIOR';
+		END IF;
+	 	
+		RETURN CATEGORY;
+	END $$
+DELIMITER ;
+
+
+
+
+3. Develop a function fn_salary_grade(emp_id INT) that returns 'Grade C' if SAL is less
+than 1500, 'Grade B' if salary is between 1500 and 3000, and 'Grade A' if salary is
+above 3000.
+
+DELIMITER $$
+	CREATE FUNCTION FN_SALARY_GRADE(EMP_ID INT)
+	RETURNS VARCHAR(1)
+	DETERMINISTIC
+	BEGIN
+		DECLARE GRADE VARCHAR(1);
+		DECLARE SALARY DECIMAL(10,2);
+		
+		SELECT SAL INTO SALARY
+		FROM MY_EMP
+		WHERE EMPNO = EMP_ID;
+		
+		IF SALARY < 1500 THEN
+			SET GRADE = 'C';
+		ELSEIF SALARY BETWEEN 1500 AND 3000 THEN
+			SET GRADE = 'B';
+		ELSE
+			SET GRADE = 'A';
+		END IF;
+		
+		RETURN GRADE;
+	END $$
+DELIMITER ;
+
+
+		
+
+
+4. Create a function fn_team_size(manager_id INT) that returns the total number of
+employees reporting to a given manager based on the MGR column.
+
+DELIMITER $$
+	CREATE FUNCTION FN_TEAM_SIZE(MANAGER_ID INT)
+	RETURNS INT
+	DETERMINISTIC
+	BEGIN	
+		DECLARE EMPLOYEES INT DEFAULT 0;
+		SELECT COUNT(*) INTO EMPLOYEES
+		FROM MY_EMP
+		WHERE MGR = MANAGER_ID; 
+		
+		RETURN EMPLOYEES;
+	END $$
+DELIMITER ;
+
+
+5. Create a function fn_salary_vs_dept_avg(emp_id INT) that compares an employee’s
+salary with the average salary of their department and returns 'Above Avg', 'Below
+Avg', or 'Equal Avg' accordingly.
+
+DELIMITER $$
+CREATE FUNCTION FN_SALARY_VS_DEPT_AVG(emp_id INT)
+RETURNS VARCHAR(20)
+DETERMINISTIC
+BEGIN
+    DECLARE message VARCHAR(20);
+    DECLARE salary DECIMAL(10,2);
+    DECLARE avgsalary DECIMAL(10,2);
+
+    -- Get employee salary
+    SELECT SAL INTO salary
+    FROM MY_EMP
+    WHERE EMPNO = emp_id;
+
+    -- Get department average salary
+    SELECT AVG(SAL) INTO avgsalary
+    FROM MY_EMP
+    WHERE DEPTNO = (SELECT DEPTNO FROM MY_EMP WHERE EMPNO = emp_id);
+
+    -- Compare employee salary with department average
+    IF salary > avgsalary THEN 
+        SET message = 'ABOVE AVG';
+    ELSEIF salary < avgsalary THEN
+        SET message = 'BELOW AVG';
+    ELSE
+        SET message = 'EQUAL AVG';
+    END IF;
+
+    RETURN message;
+END $$
+DELIMITER ;
+
+
+
+
+
+
+
+
+
+

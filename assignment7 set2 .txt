@@ -1,0 +1,350 @@
+
+
+Set -2:
+
+Q1. Create a procedure PC1 that uses a cursor to display employee name and salary for all employees.
+
+Query:  DELIMITER $$
+mysql>
+mysql> CREATE PROCEDURE PC1()
+    -> BEGIN
+    ->     -- Declare variables
+    ->     DECLARE v_ename VARCHAR(50);
+    ->     DECLARE v_sal DECIMAL(10,2);
+    ->     DECLARE done INT DEFAULT 0;
+    ->
+    ->     -- Declare cursor
+    ->     DECLARE emp_cursor CURSOR FOR
+    ->         SELECT ename, sal FROM emp;
+    ->
+    ->     -- Declare handler for end of cursor
+    ->     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+    ->
+    ->     -- Open cursor
+    ->     OPEN emp_cursor;
+    ->
+    ->     read_loop: LOOP
+    ->         FETCH emp_cursor INTO v_ename, v_sal;
+    ->         IF done = 1 THEN
+    ->             LEAVE read_loop;
+    ->         END IF;
+    ->
+    ->         -- Display employee name and salary
+    ->         SELECT CONCAT('Employee: ', v_ename, ' | Salary: ', v_sal) AS Output;
+    ->     END LOOP;
+    ->
+    ->     -- Close cursor
+    ->     CLOSE emp_cursor;
+    -> END$$
+Query OK, 0 rows affected (0.01 sec)
+
+mysql>
+mysql> DELIMITER ;
+mysql> CALL PC1();
+
+Q2.Create a procedure PC2 that uses a cursor to calculate the total salary of all employees and display the final total.
+
+Query:  DELIMITER $$
+mysql>
+mysql> CREATE PROCEDURE PC2()
+    -> BEGIN
+    ->     -- Variables
+    ->     DECLARE v_sal DECIMAL(10,2);
+    ->     DECLARE total_sal DECIMAL(15,2) DEFAULT 0;
+    ->     DECLARE done INT DEFAULT 0;
+    ->
+    ->     -- Cursor declaration
+    ->     DECLARE emp_cursor CURSOR FOR
+    ->         SELECT sal FROM emp;
+    ->
+    ->     -- Handler for end of cursor
+    ->     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+    ->
+    ->     -- Open cursor
+    ->     OPEN emp_cursor;
+    ->
+    ->     -- Loop through rows
+    ->     read_loop: LOOP
+    ->         FETCH emp_cursor INTO v_sal;
+    ->         IF done = 1 THEN
+    ->             LEAVE read_loop;
+    ->         END IF;
+    ->
+    ->         -- Add salary to total
+    ->         SET total_sal = total_sal + v_sal;
+    ->     END LOOP;
+    ->
+    ->     -- Close cursor
+    ->     CLOSE emp_cursor;
+    ->
+    ->     -- Display final total
+    ->     SELECT CONCAT('Total Salary of all employees = ', total_sal) AS Result;
+    -> END$$
+Query OK, 0 rows affected (0.00 sec)
+
+mysql>
+mysql> DELIMITER ;
+mysql> CALL PC2();
+
+Q3. Create a procedure PC3 that prints only employees whose salary is greater than 3000 using a cursor.
+
+Query: DELIMITER $$
+mysql>
+mysql> CREATE PROCEDURE PC3()
+    -> BEGIN
+    ->     -- Variables
+    ->     DECLARE v_ename VARCHAR(50);
+    ->     DECLARE v_sal DECIMAL(10,2);
+    ->     DECLARE done INT DEFAULT 0;
+    ->
+    ->     -- Cursor declaration (fetch all employees)
+    ->     DECLARE emp_cursor CURSOR FOR
+    ->         SELECT ename, sal FROM emp;
+    ->
+    ->     -- Handler for end of cursor
+    ->     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+    ->
+    ->     -- Open cursor
+    ->     OPEN emp_cursor;
+    ->
+    ->     -- Loop through rows
+    ->     read_loop: LOOP
+    ->         FETCH emp_cursor INTO v_ename, v_sal;
+    ->         IF done = 1 THEN
+    ->             LEAVE read_loop;
+    ->         END IF;
+    ->
+    ->         -- Condition: salary greater than 3000
+    ->         IF v_sal > 3000 THEN
+    ->             SELECT CONCAT('Employee: ', v_ename, ' | Salary: ', v_sal) AS Output;
+    ->         END IF;
+    ->     END LOOP;
+    ->
+    ->     -- Close cursor
+    ->     CLOSE emp_cursor;
+    -> END$$
+Query OK, 0 rows affected (0.00 sec)
+
+mysql>
+mysql> DELIMITER ;
+mysql> CALL PC3();
+
+Q4. Create a procedure PC4 hat uses a cursor to count how many employees are working in department 10.
+
+Query: DELIMITER $$
+mysql>
+mysql> CREATE PROCEDURE PC4()
+    -> BEGIN
+    ->     -- Variables
+    ->     DECLARE v_deptno INT;
+    ->     DECLARE emp_count INT DEFAULT 0;
+    ->     DECLARE done INT DEFAULT 0;
+    ->
+    ->     -- Cursor declaration (fetch deptno of all employees)
+    ->     DECLARE emp_cursor CURSOR FOR
+    ->         SELECT deptno FROM emp;
+    ->
+    ->     -- Handler for end of cursor
+    ->     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+    ->
+    ->     -- Open cursor
+    ->     OPEN emp_cursor;
+    ->
+    ->     -- Loop through rows
+    ->     read_loop: LOOP
+    ->         FETCH emp_cursor INTO v_deptno;
+    ->         IF done = 1 THEN
+    ->             LEAVE read_loop;
+    ->         END IF;
+    ->
+    ->         -- Condition: department = 10
+    ->         IF v_deptno = 10 THEN
+    ->             SET emp_count = emp_count + 1;
+    ->         END IF;
+    ->     END LOOP;
+    ->
+    ->     -- Close cursor
+    ->     CLOSE emp_cursor;
+    ->
+    ->     -- Display final count
+    ->     SELECT CONCAT('Number of employees in Dept 10 = ', emp_count) AS Result;
+    -> END$$
+Query OK, 0 rows affected (0.00 sec)
+
+mysql>
+mysql> DELIMITER ;
+mysql> CALL PC4();
+
+Q5. Create a procedure PC5 that uses a cursor to display employees in descending order of salary.
+
+Query: DELIMITER $$
+mysql>
+mysql> CREATE PROCEDURE PC5()
+    -> BEGIN
+    ->     -- Variables
+    ->     DECLARE v_ename VARCHAR(50);
+    ->     DECLARE v_sal DECIMAL(10,2);
+    ->     DECLARE done INT DEFAULT 0;
+    ->
+    ->     -- Cursor declaration (salary in descending order)
+    ->     DECLARE emp_cursor CURSOR FOR
+    ->         SELECT ename, sal FROM emp ORDER BY sal DESC;
+    ->
+    ->     -- Handler for end of cursor
+    ->     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+    ->
+    ->     -- Open cursor
+    ->     OPEN emp_cursor;
+    ->
+    ->     -- Loop through rows
+    ->     read_loop: LOOP
+    ->         FETCH emp_cursor INTO v_ename, v_sal;
+    ->         IF done = 1 THEN
+    ->             LEAVE read_loop;
+    ->         END IF;
+    ->
+    ->         -- Display employee name and salary
+    ->         SELECT CONCAT('Employee: ', v_ename, ' | Salary: ', v_sal) AS Output;
+    ->     END LOOP;
+    ->
+    ->     -- Close cursor
+    ->     CLOSE emp_cursor;
+    -> END$$
+Query OK, 0 rows affected (0.00 sec)
+
+mysql>
+mysql> DELIMITER ;
+mysql> CALL PC5();
+
+Q6. Create a procedure PC6 that uses a cursor to print employee name and department number for employees who do not receive commission.
+
+Query: DELIMITER $$
+mysql>
+mysql> CREATE PROCEDURE PC6()
+    -> BEGIN
+    ->     -- Variables
+    ->     DECLARE v_ename VARCHAR(50);
+    ->     DECLARE v_deptno INT;
+    ->     DECLARE v_comm DECIMAL(10,2);
+    ->     DECLARE done INT DEFAULT 0;
+    ->
+    ->     -- Cursor declaration (fetch all employees)
+    ->     DECLARE emp_cursor CURSOR FOR
+    ->         SELECT ename, deptno, comm FROM emp;
+    ->
+    ->     -- Handler for end of cursor
+    ->     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+    ->
+    ->     -- Open cursor
+    ->     OPEN emp_cursor;
+    ->
+    ->     -- Loop through rows
+    ->     read_loop: LOOP
+    ->         FETCH emp_cursor INTO v_ename, v_deptno, v_comm;
+    ->         IF done = 1 THEN
+    ->             LEAVE read_loop;
+    ->         END IF;
+    ->
+    ->         -- Condition: employees with no commission
+    ->         IF v_comm IS NULL OR v_comm = 0 THEN
+    ->             SELECT CONCAT('Employee: ', v_ename, ' | Dept: ', v_deptno) AS Output;
+    ->         END IF;
+    ->     END LOOP;
+    ->
+    ->     -- Close cursor
+    ->     CLOSE emp_cursor;
+    -> END$$
+Query OK, 0 rows affected (0.00 sec)
+
+mysql>
+mysql> DELIMITER ;
+mysql> CALL PC6();
+
+Q7. Create a procedure PC7 that uses a cursor to display only the first 5 employees, based on the order in which they were entered in the table.
+
+Query: DELIMITER $$
+mysql>
+mysql> CREATE PROCEDURE PC7()
+    -> BEGIN
+    ->     -- Variables
+    ->     DECLARE v_ename VARCHAR(50);
+    ->     DECLARE v_deptno INT;
+    ->     DECLARE done INT DEFAULT 0;
+    ->     DECLARE counter INT DEFAULT 0;
+    ->
+    ->     -- Cursor declaration (fetch employees in natural order of entry)
+    ->     DECLARE emp_cursor CURSOR FOR
+    ->         SELECT ename, deptno FROM emp ORDER BY empno;  -- assuming empno is entry order
+    ->
+    ->     -- Handler for end of cursor
+    ->     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+    ->
+    ->     -- Open cursor
+    ->     OPEN emp_cursor;
+    ->
+    ->     -- Loop through rows
+    ->     read_loop: LOOP
+    ->         FETCH emp_cursor INTO v_ename, v_deptno;
+    ->         IF done = 1 OR counter >= 5 THEN
+    ->             LEAVE read_loop;
+    ->         END IF;
+    ->
+    ->         -- Display employee name and department
+    ->         SELECT CONCAT('Employee: ', v_ename, ' | Dept: ', v_deptno) AS Output;
+    ->
+    ->         -- Increase counter
+    ->         SET counter = counter + 1;
+    ->     END LOOP;
+    ->
+    ->     -- Close cursor
+    ->     CLOSE emp_cursor;
+    -> END$$
+Query OK, 0 rows affected (0.00 sec)
+
+mysql>
+mysql> DELIMITER ;
+mysql> CALL PC7();
+
+Q8. Create a procedure PC8 that uses a cursor to print employee names along with experience in years from HIREDATE till today.
+Query: DELIMITER $$
+mysql>
+mysql> CREATE PROCEDURE PC8()
+    -> BEGIN
+    ->     -- Variables
+    ->     DECLARE v_ename VARCHAR(50);
+    ->     DECLARE v_hiredate DATE;
+    ->     DECLARE v_experience INT;
+    ->     DECLARE done INT DEFAULT 0;
+    ->
+    ->     -- Cursor declaration
+    ->     DECLARE emp_cursor CURSOR FOR
+    ->         SELECT ename, hiredate FROM emp;
+    ->
+    ->     -- Handler for end of cursor
+    ->     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+    ->
+    ->     -- Open cursor
+    ->     OPEN emp_cursor;
+    ->
+    ->     -- Loop through rows
+    ->     read_loop: LOOP
+    ->         FETCH emp_cursor INTO v_ename, v_hiredate;
+    ->         IF done = 1 THEN
+    ->             LEAVE read_loop;
+    ->         END IF;
+    ->
+    ->         -- Calculate experience in years
+    ->         SET v_experience = TIMESTAMPDIFF(YEAR, v_hiredate, CURDATE());
+    ->
+    ->         -- Display employee name and experience
+    ->         SELECT CONCAT('Employee: ', v_ename, ' | Experience: ', v_experience, ' years') AS Output;
+    ->     END LOOP;
+    ->
+    ->     -- Close cursor
+    ->     CLOSE emp_cursor;
+    -> END$$
+Query OK, 0 rows affected (0.00 sec)
+
+mysql>
+mysql> DELIMITER ;
+mysql> CALL PC8();

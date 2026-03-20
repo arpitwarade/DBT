@@ -1,0 +1,573 @@
+Q1.Display customer full name in UPPERCASE and show their credit limit.
+If credit_limit is NULL, display 0 instead.
+Sort by credit_limit descending.
+
+Query:
+     select concat(upper(first_name),' ',upper(last_name)) as "Fullname",
+    -> ifnull(credit_limit,0) as "credit_limit"
+    -> from customers order by credit_limit desc;
+
+Q2.List all orders placed in 2023 where:
+   order_status is 'SHIPPED' AND shipped_date is more than 3 days after order_date. 
+
+query: select * from orders where year(order_date)=2023 and
+    -> order_status = 'Shipped' and datediff(shipped_date,order_date)>3;
+
+
+Q3 Display product_name, category, and a new column called Revised Price showing
+price increased by 12%. Show only products where: category is 'Electronics'  OR price is greater than 900.
+
+query: select product_name,(price+price*0.12) as "After increasing 12% price"
+    -> from products where category='Electronics' or price>900;
+
+Q4. Show customer_id and total number of orders placed by each customer.
+Display only those customers who placed more than 4 orders.
+
+query: select c.customer_id,count(o.order_id) as "total number of order by each customer"
+    -> from customers c join orders o
+    -> on c.customer_id = o.customer_id
+    -> group by c.customer_id
+    -> having count(o.order_id)>4;
+
+Q5.List employees whose salary is greater than the average salary of all employees.
+Query: select * from employees
+    -> where salary>(select avg(salary) from employees);
+
+Q6. Display order_id and total order value for each order
+(Total = quantity × unit_price − discount).
+
+query: select order_id,sum(quantity*unit_price-discount) as "Value for each order"
+    -> from order_items
+    -> group by order_id;
+
+Q7. Find customers who registered after '2020-01-01'
+AND (state is 'Texas' OR state is 'California')
+AND credit_limit is greater than 5000.
+
+Q8. Find customers who registered after '2020-01-01'
+AND (state is 'Texas' OR state is 'California')
+AND credit_limit is greater than 5000.
+
+Query:select * from customers
+    -> where registration_date>'2020-01-01' and (state='Texas' or state='california' ) and credit_limit>5000;
+
+Q9. Show employees who have never handled any order.
+Query:  select e.* from employees e left join orders o
+    -> on e.employee_id = o.employee_id
+    -> where o.employee_id is null;
+
+Q10. Combine the list of:
+  Customers from 'Florida'
+  Customers from 'New York'
+Remove duplicates in the result.
+Query: select distinct * from customers
+    -> where state ='Florida' or state ='New York';
+
+Q11.  Display product_name and a column called Stock_Level:
+  'LOW' if stock_qty < 20
+  'MEDIUM' if stock_qty between 20 and 60
+  'HIGH' otherwise
+Show only products that are NOT discontinued.
+
+query: select product_name
+    -> , case
+    -> when stock_qty<20 then 'LOW'
+    -> when stock_qty between 20 and 60 then 'MEDIUM'
+    -> else 'HIGH'
+    -> end as "Stock_level"
+    -> from products
+    -> where discontinued ='NO';
+
+Q12.Find customers whose credit_limit is greater than the maximum credit_limit of
+customers from Florida.
+
+Query: select * from customers
+    -> where credit_limit>(select max(credit_limit) from customers where state='Florida');
+
+Q13. Display order_id, customer full name, employee full name, and order_status
+for all orders placed in 2022.
+
+Query:select o.order_id,concat(first_name,' ',last_name) as "Full Name",order_status
+    -> from customers c join orders o
+    -> on c.customer_id = o.customer_id
+    -> where year(order_date)='2022';
+
+Q14. Display the second highest salary from employees table.
+
+Query: select * from employees
+    -> where salary=(select max(salary) from employees where salary<(select max(salary) from employees));
+
+Q15. List customers who have placed orders in both 2022 and 2023.
+
+query:SELECT c.customer_id, c.first_name, c.last_name
+    -> FROM customers c
+    -> JOIN orders o ON c.customer_id = o.customer_id
+    -> WHERE YEAR(o.order_date) IN (2022, 2023)
+    -> GROUP BY c.customer_id, c.first_name, c.last_name
+    -> HAVING COUNT(DISTINCT YEAR(o.order_date)) = 2;
+
+Q16. Display order_id and total_order_value only for orders where
+total_order_value is greater than 1500.
+
+Query: select order_id, sum(quantity*unit_price) as "Value"
+    -> from order_items
+    -> group by order_id
+    -> having sum(quantity*unit_price)>1500;
+
+Q17. Show employees hired in the same year as employee 'Emma Clark'.
+Query: select * from employees
+    -> where concat(first_name,' ',last_name)<>'Emma clark' and year(hire_date) =(select year(hire_date) from employees where concat(first_name,' ',last_name)='Emma clark');
+
+Q18. Display customer_id, total number of orders, and total revenue generated
+for each customer.
+Show only customers whose total revenue exceeds 3000.
+
+Query:   select c.customer_id, count(o.order_id) as"Total Number of Orders", sum(od.quantity*od.unit_price) as "Total Revenue"
+    ->      from customers c
+    ->     join orders o
+    ->     on c.customer_id = o.customer_id
+    ->      join order_items od
+    ->     on o.order_id = od.order_id
+    ->     group by c.customer_id
+    ->      having sum(od.quantity*od.unit_price)>3000;
+
+Q19. Find products whose price is greater than ALL products in category 'Furniture'.
+Query:  select product_name, price from products
+    -> where price>All(select price from products where category = 'Furniture');
+
+Q20.Display orders where:
+ order_status = 'SHIPPED'
+AND either shipped_date is blank OR shipped_date is greater than
+order_date
+
+Query: select * from orders
+    -> where order_status='SHIPPED'
+    ->  And (shipped_date > order_date or shipped_date is null); 
+
+Q21. Display customer details for customers whose total number of orders
+is greater than the average number of orders placed by customers.
+
+Query: SELECT c.customer_id, c.first_name, c.last_name, COUNT(o.order_id) AS total_orders
+    -> FROM customers c
+    -> JOIN orders o ON c.customer_id = o.customer_id
+    -> GROUP BY c.customer_id, c.first_name, c.last_name
+    -> HAVING COUNT(o.order_id) > (
+    ->     SELECT AVG(order_count)
+    ->     FROM (
+    ->         SELECT COUNT(order_id) AS order_count
+    ->         FROM orders
+    ->         GROUP BY customer_id
+    ->     ) AS sub
+    -> );
+
+Q22. Display product_name and total revenue generated by each product.
+Sort by revenue descending.
+Show only top 5 products.
+
+Query: select product_name, sum(price)"Total Revenue Generated by each product"
+    -> from products
+    -> group by product_name
+    -> order by sum(price) desc limit 5; 
+
+Q23. Display employees’ full names who handled more orders than employee 'Olivia
+Lewis'.
+
+Query: SELECT CONCAT(e.first_name,' ',e.last_name) AS Full_Name, COUNT(o.order_id) AS total_orders
+    -> FROM employees e
+    -> JOIN orders o ON e.employee_id = o.employee_id
+    -> GROUP BY e.employee_id, e.first_name, e.last_name
+    -> HAVING COUNT(o.order_id) > (
+    ->     SELECT AVG(order_count)
+    ->     FROM (
+    ->         SELECT COUNT(order_id) AS order_count
+    ->         FROM orders
+    ->         GROUP BY employee_id
+    ->     ) AS sub
+    -> );
+
+Q24.Display customers who have ordered products from category 'Electronics'
+but never ordered products from category 'Furniture'.
+
+Query: select c.* from customers c join orders o
+    -> on c.customer_id = o.customer_id
+    -> join order_items oi
+    -> on o.order_id = oi.order_id
+    -> join products p
+    -> on oi.product_id = p.product_id
+    -> where category = 'Electronics' and category<> 'Furniture';
+
+Q25. Display employee name and total commission earned
+(commission = salary × commission_pct).
+If commission_pct is not applicable then treat it as 0.
+
+Query:  select concat(first_name,' ',last_name), sum(salary*ifnull(commission_pct,0)) as "Total commission earned"
+    -> from employees
+    -> group by first_name,last_name;
+
+Q26. Display department-wise average salary
+and classify departments as:
+'HIGH PAYING' if avg salary > 75000
+'MODERATE' if between 60000 and 75000
+ 'LOW' otherwise
+
+Query:  select department, avg(salary)
+    ->     , case
+    ->      when avg(salary)>75000 then 'HIGH PAYING'
+    ->      when avg(salary) between 60000 and 70000 then "MODERATE"
+    ->      else 'LOW'
+    ->     end as "Department Wise Avg Salary"
+    ->     from employees
+    ->     group by department;
+
+Q27. Display orders placed on weekends.
+
+Query: SELECT *
+    -> FROM orders
+    -> WHERE DAYOFWEEK(order_date) IN (1, 7);
+
+Q28. Find customers whose credit_limit is greater than ALL customers in Texas.
+
+Query:  select * from customers
+    -> where credit_limit>All(select sum(credit_limit) from customers where state = 'Texas' group by customer_id);
+
+Q29. Display product categories where the total revenue generated is
+greater than the overall average revenue per category.
+
+Query:  SELECT p.category,
+    ->        SUM(p.price) AS total_revenue
+    -> FROM products p
+    -> JOIN orders o ON p.product_id = o.product_id
+    -> GROUP BY p.category
+    -> HAVING SUM(p.price) > (
+    ->     SELECT AVG(category_revenue)
+    ->     FROM (
+    ->         SELECT SUM(p2.price) AS category_revenue
+    ->         FROM products p2
+    ->         JOIN orders o2 ON p2.product_id = o2.product_id
+    ->         GROUP BY p2.category
+    ->     ) AS sub
+    -> );
+
+Q30. Find the highest salary in the employees table.
+Display employee details who earn that salary.
+Query: select * from employees order by salary desc limit 1;
+
+Q31. Display customer full name and total number of orders placed.
+Show only customers who placed at least 3 orders.
+Sort by total orders descending.
+
+Query:  select concat(c.first_name,' ',c.last_name) as "Full Name", count(o.order_id)
+    -> from customers c
+    -> join orders o
+    -> on c.customer_id=o.customer_id
+    -> group by c.first_name,c.last_name
+    -> having count(o.order_id)>3
+    -> order by count(o.order_id) desc;
+
+Q32. Display product_name and total quantity sold. 
+Show only products where total quantity sold is between 5 and 20.
+
+Query: 	select p.product_name,sum(oi.quantity) from products p join order_items oi on p.product_id=oi.product_id 
+	group by p.product_name 
+	having sum(oi.quantity) between 5 and 20;
+
+Q33. Display orders placed in 2023 with customer full name. 
+Show only orders where order_status is 'SHIPPED' 
+OR shipped_date is not available .
+
+Query: select concat(c.first_name," ",c.last_name) as "Customer Full Name", o.order_date from customers c join orders o on c.customer_id=o.customer_id
+    	where year(order_date)="2023" and (order_status='Shipped' or shipped_date is null);
+
+Q34. Display employee name and salary category: 
+∙ 'HIGH' if salary is above 80k 
+∙ 'MEDIUM' if salary is in the range of 60k to 80k 
+∙ 'LOW' otherwise 
+Sort by salary descending 
+
+Query:  select concat(first_name," ",last_name),case
+    -> when salary>80000 then 'HIGH'
+    -> when salary between 60000 and 80000 then "MEDIUM"
+    -> else "LOW"
+    -> end as "Salary Category"
+    -> from employees
+    -> order by salary desc;
+
+Q35. Find customers whose credit_limit is greater than the average credit_limit. 
+
+Query: select * from customers
+	where credit_limit> all(select avg(credit_limit) from customers);
+
+Q36. Display department-wise total salary and average salary. Show only departments where total salary exceeds 150000.
+
+Query: select department, sum(salary), avg(salary) from employees
+    -> group by department
+    -> having sum(salary)>150000;
+
+Q37. Display product name, price and price after 5% discount. Show only products having category as 'Electronics' for price above 300. 
+
+Query:  select product_name,price, price-price*.05 as "discounted price" from products
+    -> where category='Electronics' and price>300;
+
+Q38. Display employee full names and number of orders handled. Include employees who handled zero orders.
+
+Query:  select concat(e.first_name,' ', e.last_name) as "Full name", count(o.order_id)
+    -> from employees e left join orders o
+    -> on e.employee_id = o.employee_id
+    -> group by e.first_name,e.last_name;
+
+Q39. Display customer_id and total revenue generated by that customer. Show only customers whose total revenue is greater than 2000. 
+
+Query: select c.customer_id, sum(oi.unit_price*oi.quantity-oi.discount) as "Total Revenue" from customers c join orders o on c.customer_id=o.customer_id join order_items oi on o.order_id=oi.order_id
+    -> group by customer_id
+    -> having sum(oi.unit_price*oi.quantity-oi.discount)>2000;
+
+Q40. Combine Customers’ full names and state from Texas and California. Ensure  duplicates are discarded. 
+
+Query:  select distinct concat(first_name," ", last_name), state from customers
+	where state in('texas','california');
+
+Q41. Display customer full name and total number of products purchased (total quantity across all orders). 
+Show only customers who purchased more than 10 products. 
+
+Query: select concat(c.first_name," ",c.last_name),sum(oi.quantity) as "Total Products Purchased"
+    -> from customers c join orders o
+    -> on c.customer_id = o.customer_id
+    -> join order_items oi
+    -> on o.order_id=oi.order_id
+    -> join products p
+    -> on oi.product_id = p.product_id
+    -> group by c.first_name,c.last_name
+    -> having sum(oi.quantity)>10;
+
+Q42. Display order details along with customer full names for all pending orders placed in  2023. Display the output arranged as per the Order dates latest to oldest. 
+
+Query:  select o.*,concat(c.first_name," ",c.last_name) as "Full NAme"  from customers c join orders o
+    -> on c.customer_id=o.customer_id
+    -> where o.order_status ='pending'
+    -> order by order_date desc;
+
+Q43. Find customers who have never ordered any product from category 'Appliances'. 
+
+Query:  select distinct concat(c.first_name," ",c.last_name)
+    -> from customers c join orders o
+    ->  on c.customer_id = o.customer_id
+    -> join order_items oi
+    ->  on o.order_id=oi.order_id
+    ->  join products p
+    -> on oi.product_id = p.product_id
+    -> where p.category<>'appliances';
+
+Q44. Display order_id and number of products in each order. 
+Show only orders where number of products is between 2 and 5. 
+ 
+Query:  select o.order_id, count(p.product_id)
+    -> from orders o join order_items oi
+    -> on o.order_id = oi.order_id
+    -> join products p
+    -> on oi.product_id = p.product_id
+    -> group by o.order_id
+    -> having count(p.product_id) between 2 and 5;
+
+Q45. Display customers who placed orders in 2022 but not in 2023.
+
+Query: SELECT
+    ->     CONCAT(c.first_name, ' ', c.last_name) AS "Full name"
+    -> FROM customers c
+    -> JOIN orders o
+    ->     ON c.customer_id = o.customer_id
+    -> WHERE YEAR(o.order_date) = 2022
+    -> GROUP BY c.customer_id, c.first_name, c.last_name
+    -> HAVING SUM(CASE WHEN YEAR(o.order_date) = 2023 THEN 1 ELSE 0 END) = 0;
+
+
+SET2
+Q1: Create a view Salesman_data which will display all the details of Salesman job. The
+view should allow the user to insert records of Salesman job only.
+
+Query: 
+mysql> CREATE VIEW Salesman_data AS
+    -> SELECT *
+    -> FROM emp
+    -> WHERE JOB = 'SALESMAN'
+    -> WITH CHECK OPTION;
+
+ INSERT INTO Salesman_data (EMPNO, ENAME, JOB, MGR, HIREDATE, SAL, COMM, DEPTNO)
+    -> VALUES (9001, 'RAHUL', 'SALESMAN', 7698, '2026-03-17', 2500, 400, 30);
+
+ select * from Salesman_data;
+
+Q2. Create a View Emp_Salary_Details which will display employee’s name, salary,
+commission, total (which will be salary plus commission), tax as 30% of the total,
+HRA as 10% of salary, DA as 5% of salary, TA as 7% of salary, PF as 200 and Gross
+that would be the formula as (Total-Tax) + (HRA + DA + TA) – PF
+
+Query: CREATE VIEW Emp_Salary_Details AS
+    -> SELECT
+    ->     ENAME AS "Employee Name",
+    ->     SAL AS "Salary",
+    ->     COMM AS "Commission",
+    ->     (SAL + IFNULL(COMM,0)) AS "Total",
+    ->     (0.30 * (SAL + IFNULL(COMM,0))) AS "Tax",
+    ->     (0.10 * SAL) AS "HRA",
+    ->     (0.05 * SAL) AS "DA",
+    ->     (0.07 * SAL) AS "TA",
+    ->     200 AS "PF",
+    ->     ((SAL + IFNULL(COMM,0)) - (0.30 * (SAL + IFNULL(COMM,0)))
+    ->         + ((0.10 * SAL) + (0.05 * SAL) + (0.07 * SAL))
+    ->         - 200) AS "Gross"
+    -> FROM emp;
+
+SELECT * FROM Emp_Salary_Details;
+
+Q3. Create a view Direct_Reporting which will display all the records of employee who
+are directly reporting to King.
+
+Query: 
+    CREATE VIEW Direct_Reporting AS
+SELECT *
+FROM emp
+WHERE MGR = (
+    SELECT EMPNO
+    FROM emp
+    WHERE ENAME = 'KING'
+);
+
+SELECT * FROM Direct_Reporting;
+
+Q4. Create a view named Dept_High_Earners which will display employee name, job,
+salary and department name of those employees whose salary is greater than the
+average salary of their respective department.
+
+Query: CREATE VIEW Dept_High_Earners AS
+SELECT 
+    e.ENAME AS "Employee Name",
+    e.JOB   AS "Job",
+    e.SAL   AS "Salary",
+    d.DNAME AS "Department Name"
+FROM emp e
+JOIN dept d 
+    ON e.DEPTNO = d.DEPTNO
+WHERE e.SAL > (
+    SELECT AVG(e2.SAL)
+    FROM emp e2
+    WHERE e2.DEPTNO = e.DEPTNO
+);
+
+SELECT * FROM Dept_High_Earners;
+
+Q5.Create a view named Sales_Recent_Hires which will display all the details of
+employees along with department name and location who belong to SALESMAN job
+type and joined after 01-JAN-1982.
+
+Query: CREATE VIEW Sales_Recent_Hires AS
+SELECT 
+    e.EMPNO,
+    e.ENAME,
+    e.JOB,
+    e.MGR,
+    e.HIREDATE,
+    e.SAL,
+    e.COMM,
+    e.DEPTNO,
+    d.DNAME AS "Department Name",
+    d.LOC   AS "Location"
+FROM emp e
+JOIN dept d 
+    ON e.DEPTNO = d.DEPTNO
+WHERE e.JOB = 'SALESMAN'
+  AND e.HIREDATE > '1982-01-01';
+
+SELECT * FROM Sales_Recent_Hires;
+
+Q6. Create a View Manager_Details which will show the following output:
+Query: CREATE VIEW Manager_Details AS
+SELECT 
+    e.EMPNO,
+    e.ENAME AS "Manager Name",
+    e.JOB,
+    e.SAL,
+    e.DEPTNO,
+    d.DNAME AS "Department Name",
+    d.LOC   AS "Location"
+FROM emp e
+JOIN dept d 
+    ON e.DEPTNO = d.DEPTNO
+WHERE e.EMPNO IN (
+    SELECT DISTINCT MGR
+    FROM emp
+    WHERE MGR IS NOT NULL
+);
+
+SELECT * FROM Manager_Details;
+
+SET3
+Q1. Produce the following output 
+
+Query: SELECT 
+    e.ENAME AS "Employee Name",
+    e.JOB   AS "Job",
+    e.SAL   AS "Salary",
+    j.MaxSal,
+    j.MinSal,
+    j.AvgSal
+FROM emp e
+JOIN (
+    SELECT JOB, MAX(SAL) AS MaxSal, MIN(SAL) AS MinSal, AVG(SAL) AS AvgSal
+    FROM emp
+    GROUP BY JOB
+) j
+ON e.JOB = j.JOB;
+
+Q2. Produce the following output 
+Query: SELECT 
+    e.ENAME AS "Employee Name",
+    e.DEPTNO AS "Dept No",
+    e.SAL AS "Existing Salary",
+    d_stats.MaxSal AS "Maximum Salary (Dept)",
+    d_stats.MinSal AS "Minimum Salary (Dept)",
+    d_stats.AvgSal AS "Average Salary (Dept)",
+    (e.SAL - d_stats.AvgSal) AS "Dept Difference"
+FROM emp e
+JOIN (
+    SELECT 
+        DEPTNO,
+        MAX(SAL) AS MaxSal,
+        MIN(SAL) AS MinSal,
+        AVG(SAL) AS AvgSal
+    FROM emp
+    GROUP BY DEPTNO
+) d_stats
+ON e.DEPTNO = d_stats.DEPTNO;
+
+Q3.Display the record (s) of employee (s) having the oldest hiring date in their respective job  type  
+
+Query: SELECT 
+    e.EMPNO,
+    e.ENAME,
+    e.JOB,
+    e.HIREDATE,
+    e.SAL,
+    e.DEPTNO
+FROM emp e
+WHERE e.HIREDATE = (
+    SELECT MIN(e2.HIREDATE)
+    FROM emp e2
+    WHERE e2.JOB = e.JOB
+);
+
+Q4. Display the highest earner (s) records in each deptno 
+ 
+Query: SELECT 
+    e.EMPNO,
+    e.ENAME AS "Employee Name",
+    e.JOB,
+    e.SAL AS "Salary",
+    e.DEPTNO
+FROM emp e
+WHERE e.SAL = (
+    SELECT MAX(e2.SAL)
+    FROM emp e2
+    WHERE e2.DEPTNO = e.DEPTNO
+);
+
+
